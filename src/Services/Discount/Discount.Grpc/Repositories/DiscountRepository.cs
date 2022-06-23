@@ -2,6 +2,7 @@
 using Discount.Grpc.Entities;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
+using System;
 using System.Threading.Tasks;
 
 namespace Discount.Grpc.Repositories
@@ -16,13 +17,21 @@ namespace Discount.Grpc.Repositories
 
         public async Task<Coupon> GetDiscount(string productName)
         {
-            using var connection = new NpgsqlConnection(_configuration.GetValue<string>("DatabaseSettings:ConnectionString"));
-            var coupon = await connection.QueryFirstOrDefaultAsync<Coupon>("Select * from Coupon where ProductName=@ProductName", new { ProductName = productName});
-            
-            if (coupon == null)
-                return new Coupon() { ProductName = "No Discount", Amount = 0, Description = "No discount"};
+            try
+            {
+                using var connection = new NpgsqlConnection(_configuration.GetValue<string>("DatabaseSettings:ConnectionString"));
+                var coupon = await connection.QueryFirstOrDefaultAsync<Coupon>("Select * from Coupon where ProductName=@ProductName", new { ProductName = productName });
 
-            return coupon;
+                if (coupon == null)
+                    return new Coupon() { ProductName = "No Discount", Amount = 0, Description = "No discount" };
+
+                return coupon;
+            }
+            catch(Exception ex)
+            {
+                var p = ex;
+                throw;
+            }
         }
         public async Task<bool> CreateDiscount(Coupon coupon)
         {
