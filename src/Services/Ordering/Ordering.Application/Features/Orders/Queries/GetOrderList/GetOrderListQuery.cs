@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Ordering.Application.Features.Order.Queries.GetOrderList
+namespace Ordering.Application.Features.Orders.Queries.GetOrderList
 {
     public class GetOrderListQuery : IRequest<List<OrderVm>>
     {
