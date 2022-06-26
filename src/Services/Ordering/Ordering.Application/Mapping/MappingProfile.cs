@@ -1,9 +1,6 @@
 ﻿using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Ordering.Application.Features.Order.Queries.GetOrderList;
+using Ordering.Domain.Entities;
 
 namespace Ordering.Application.Mapping
 {
@@ -11,7 +8,7 @@ namespace Ordering.Application.Mapping
     {
         MappingProfile()
         {
-            
+            CreateMap<Order, OrderVm>().ReverseMap();
         }
     }
 }
