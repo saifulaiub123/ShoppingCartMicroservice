@@ -7,13 +7,13 @@ using FluentValidation.Results;
 
 namespace Ordering.Application.Exceptions
 {
-    public class ValidatorException : ApplicationException
+    public class ValidationException : ApplicationException
     {
-        public ValidatorException(string message) : base("One or more validation failures have occured.")
+        public ValidationException(string message) : base("One or more validation failures have occured.")
         {
             Errors = new Dictionary<string, string[]>();
         }
-        public ValidatorException(IEnumerable<ValidationFailure> failures) : base()
+        public ValidationException(IEnumerable<ValidationFailure> failures) : base()
         {
             Errors = failures
                 .GroupBy(e => e.PropertyName, e => e.ErrorMessage)
