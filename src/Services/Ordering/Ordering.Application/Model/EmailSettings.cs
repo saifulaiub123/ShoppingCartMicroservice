@@ -1,6 +1,6 @@
 ﻿
 
-namespace Ordering.Application.Contracts.Model
+namespace Ordering.Application.Model
 {
     public class EmailSettings
     {
