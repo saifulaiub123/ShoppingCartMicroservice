@@ -47,6 +47,15 @@ services:
       - "PGADMIN_DEFAULT_PASSWORD=admin1234"
     volumes:
       - pgadmin_data:/var/lib/pgadmin
+  rabbitmq:
+    container_name: rabbitmq
+    restart: always
+    environment:
+      SA_PASSWORD: "Pass@123"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
 
   #portainer:
   #  container_name: portainer
