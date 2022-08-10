@@ -15,15 +15,57 @@ services:
     ports:
       - "6379:6379"
 
-  portainer:
-    container_name: portainer
+  discountdb:
+    container_name: discountdb
+    restart: always
+    environment:
+    - POSTGRES_USER=admin
+    - POSTGRES_PASSWORD=admin1234
+    - POSTGRES_DB=DiscountDB
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  orderdb:
+    container_name: orderdb
+    restart: always
+    environment:
+      SA_PASSWORD: "Pass@123"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+  
+
+  pgadmin:
+    container_name: pgadmin
     restart: always
     ports:
-      - "8080:8000"
-      - "9000:9000"
+      - 5050:80
+    environment:
+      - "PGADMIN_DEFAULT_EMAIL=admin@gmail.com"
+      - "PGADMIN_DEFAULT_PASSWORD=admin1234"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - portainer_data:/data
+      - pgadmin_data:/var/lib/pgadmin
+  rabbitmq:
+    container_name: rabbitmq
+    restart: always
+    environment:
+      SA_PASSWORD: "Pass@123"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  #portainer:
+  #  container_name: portainer
+  #  restart: always
+  #  ports:
+  #    - "8080:8000"
+  #    - "9000:9000"
+  #  volumes:
+  #    - /var/run/docker.sock:/var/run/docker.sock
+  #    - portainer_data:/data
 
 
 
@@ -42,8 +84,43 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - "Cachesettings:ConnectionString=basketdb:6379"
+      - "GrpcSettings:DiscountUrl=http://discount.grpc"
     depends_on: 
       - basketdb
+      - rabbitmq
     ports:
       - "8001:80"
+
+  discount.api:
+    container_name: discount.api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "DatabaseSettings__ConnectionString=Server=discountdb;Port=5432;Database=DiscountDB;User Id=admin;Password=admin1234"
+    depends_on: 
+      - discountdb
+    ports:
+      - "8002:80"
+
+
+
+  discount.grpc:
+    container_name: discount.grpc
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "DatabaseSettings__ConnectionString=Server=discountdb;Port=5432;Database=DiscountDB;User Id=admin;Password=admin1234"
+    depends_on: 
+      - discountdb
+    ports:
+      - "8003:80"
+
+
+  ordering.api:
+    container_name: ordering.api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "ConnectionStrings:OrderingConnectionString=Server=orderdb;Database=OrderDb;User Id=sa;Password=Pass@123;"
+    depends_on:
+      - orderdb
+    ports:
+      - "8004:80"
 
