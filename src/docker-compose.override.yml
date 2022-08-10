@@ -47,6 +47,15 @@ services:
       - "PGADMIN_DEFAULT_PASSWORD=admin1234"
     volumes:
       - pgadmin_data:/var/lib/pgadmin
+  rabbitmq:
+    container_name: rabbitmq
+    restart: always
+    environment:
+      SA_PASSWORD: "Pass@123"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
 
   #portainer:
   #  container_name: portainer
@@ -78,6 +87,7 @@ services:
       - "GrpcSettings:DiscountUrl=http://discount.grpc"
     depends_on: 
       - basketdb
+      - rabbitmq
     ports:
       - "8001:80"
 
@@ -85,7 +95,7 @@ services:
     container_name: discount.api
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - "DatabaseSettings:ConnectionString=discountdb;Port=5432;Database=DiscountDB;User Id=admin;Password=admin1234"
+      - "DatabaseSettings__ConnectionString=Server=discountdb;Port=5432;Database=DiscountDB;User Id=admin;Password=admin1234"
     depends_on: 
       - discountdb
     ports:
@@ -97,7 +107,7 @@ services:
     container_name: discount.grpc
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - "DatabaseSettings:ConnectionString=discountdb;Port=5432;Database=DiscountDB;User Id=admin;Password=admin1234"
+      - "DatabaseSettings__ConnectionString=Server=discountdb;Port=5432;Database=DiscountDB;User Id=admin;Password=admin1234"
     depends_on: 
       - discountdb
     ports:

@@ -8,6 +8,7 @@ using Microsoft.OpenApi.Models;
 using System;
 using Basket.Api.GrpcServices;
 using Discount.Grpc.Protos;
+using MassTransit;
 
 namespace Basket.Api
 {
@@ -24,11 +25,7 @@ namespace Basket.Api
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddControllers();
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Basket.Api", Version = "v1" });
-            });
+            
             services.AddStackExchangeRedisCache(option =>
             {
                 option.Configuration = Configuration.GetValue<string>("CacheSettings:ConnectionString");
@@ -37,8 +34,23 @@ namespace Basket.Api
             {
                 o.Address = new Uri(Configuration["GrpcSettings:DiscountUrl"]);
             });
+            services.AddAutoMapper(typeof(Startup));
             services.AddScoped<DiscountGrpcService>();
             services.AddScoped<IBasketRepository, BasketRepository>();
+
+            services.AddMassTransit(config => {
+                config.UsingRabbitMq((ctx, cfg) =>
+                {
+                    cfg.Host(Configuration["EventBusSettings:HostAddress"]);
+                    cfg.UseHealthCheck(ctx);
+                });
+            });
+            services.AddMassTransitHostedService();
+            services.AddControllers();
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Basket.Api", Version = "v1" });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
