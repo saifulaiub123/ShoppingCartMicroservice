@@ -39,7 +39,7 @@ namespace OcelogApiGw
                 });
             });
 
-            await app.UseOcelot();
+            await app.UseOcelot(); 
         }
     }
 }
